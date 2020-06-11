@@ -12,9 +12,6 @@ let main = async function () {
     audio: true
   });
 
-  // Stream video to corresponding HTML-5 component
-  // document.querySelector('video').srcObject = stream;
-
   // Create an audio context and source using the Web Audio API
   // Constructor arguments:
   //// latencyHint: interactive -- tells the application to favor low latency at the expense of power consumption
@@ -41,31 +38,6 @@ let main = async function () {
   let binCount = audioAnalyser.frequencyBinCount;
   let fftBuffer = new Uint8Array(binCount);
   let fftLabels = Array.from(new Array(binCount), (x, i) => i/binCount * audioContext.sampleRate/2);
-
-
-  // The commented block of code below provides an FFT line-graph of real-time audio
-  /*
-  let refreshAudioPSD = function () {
-    // compute PSD for current audio sample
-    audioAnalyser.getByteFrequencyData(fftBuffer);
-
-    // draw an FFT line plot on the "psd" canvas element
-    let canvas = document.getElementById("psd");
-    let context = canvas.getContext("2d");
-
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    context.fillStyle = "#000000";
-
-    context.beginPath();
-    fftBuffer.forEach(function (value, index) {
-      let x = (canvas.width * index) / fftBuffer.length;
-      let y = canvas.height * (1 - value / 255);
-      context.lineTo(x, y);
-    });
-    context.stroke();
-  };
-  */
-
 
   // Log recording to a CSV file
   // To mininize latency from file I/O, buffer all readings into memory then batch dump to csv at the end of the recording
