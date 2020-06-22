@@ -1,10 +1,61 @@
-// This provides access to all of the p5.js utility functions...
-function setup() {
-  noCanvas();
+// A data structure to hold FFT readings
+// Buffer readings to mininize I/O latency
+let samples = new Map();
+
+// Globals used to perform FFT analysis and buffer data
+let audioAnalyser;
+let fftBuffer;
+let fftLabels;
+
+// Globals used to implement a recording "toggle switch"
+let isRecording = false;
+let recordingColors = {true: '#85f081', false: '#ff947a'};
+let recordingMessages = {true: 'Recording...', false: 'Tap to Start Recording...'}
+
+
+// Global flag to indicite BreathingSonar is initialized
+// TODO: Shouldn't there be an easier way to do this with preload()
+let isBreathingSonarInitialized = false;
+
+async function setup() {
+  createCanvas(windowWidth, windowHeight);
+  frameRate(20);
+  background(recordingColors[isRecording]);
+
+  await initializeBreathingSonar();
+  isBreathingSonarInitialized = true;
+}
+
+function draw() {
+  if (!isBreathingSonarInitialized) {
+    return;
+  }
+
+  clear();
+  background(recordingColors[isRecording]);
+  text(recordingMessages[isRecording], 20, 60)
+
+  audioAnalyser.getByteFrequencyData(fftBuffer);
+  if (isRecording) {
+    samples.set(new Date().getTime(), Array.from(fftBuffer));
+  }
 }
 
 
-let main = async function () {
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
+function mouseClicked() {
+  isRecording = !isRecording;
+  if (!isRecording) {
+    writeSamplesToFile();
+    samples = new Map();
+  }
+}
+
+
+async function initializeBreathingSonar() {
   // Request audio / video permission from user
   // Note that the interval / timeout counters below will not begin user handles this dialog box
   // Note that in order to access media devices, page must be served through https, otherwise errors out with an unintuitive error message
@@ -30,41 +81,22 @@ let main = async function () {
   oscillator.start();
 
   // Create an analyzer to process the sonar signal
-  //// TODO: Can I configure this to use a band pass filter ~20Khz
-  let audioAnalyser = audioContext.createAnalyser();
+  // Requires an array to store readings in, as well as bin labels for column headers
+  audioAnalyser = audioContext.createAnalyser();
   audioSource.connect(audioAnalyser);
   audioAnalyser.fftSize = 256;
 
-  // This buffer is used to store FFT output for each frame of the visualization
   let binCount = audioAnalyser.frequencyBinCount;
-  let fftBuffer = new Uint8Array(binCount);
-  let fftLabels = Array.from(new Array(binCount), (x, i) => i/binCount * audioContext.sampleRate/2);
+  fftBuffer = new Uint8Array(binCount);
+  fftLabels = Array.from(new Array(binCount), (x, i) => i/binCount * audioContext.sampleRate/2);
+}
 
-  // Log recording to a CSV file
-  // To mininize latency from file I/O, buffer all readings into memory then batch dump to csv at the end of the recording
-  let samples = new Map();
-
-  let logFFTSample = function() {
-    // compute PSD for current audio sample...
-    audioAnalyser.getByteFrequencyData(fftBuffer);
-    // ... and store it in a dictionary using current tod as key
-    samples.set(new Date().getTime(), Array.from(fftBuffer));
-  };
-
-  let writeSamplesToFile = function() {
-    let writer = createWriter('BreathingSonarLog-' + new Date().getTime() + '.csv');
-    writer.print('tod, ' + fftLabels.join(', '));
-    samples.forEach(function (powers, tod) {
-      writer.print(tod + ', ' + powers.join(', '));
-    });
-    writer.close();
-    writer.clear();
-  }
-
-  // Register callbacks to asynchronously log data and dump readings to csv file
-  // All times expressed in ms
-  setInterval(logFFTSample, 1);
-  setTimeout(writeSamplesToFile, 600000);
-};
-
-main();
+function writeSamplesToFile() {
+  let writer = createWriter('BreathingSonarLog-' + new Date().getTime() + '.csv');
+  writer.print('tod, ' + fftLabels.join(', '));
+  samples.forEach(function (powers, tod) {
+    writer.print(tod + ', ' + powers.join(', '));
+  });
+  writer.close();
+  writer.clear();
+}
