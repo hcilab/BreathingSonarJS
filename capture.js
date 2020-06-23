@@ -61,7 +61,11 @@ async function initializeBreathingSonar() {
   // Note that in order to access media devices, page must be served through https, otherwise errors out with an unintuitive error message
   const stream = await navigator.mediaDevices.getUserMedia({
     video: false,
-    audio: true
+    audio: {
+      'autoGainControl': false,
+      'echoCancellation': false,
+      'noiseSuppression': false,
+    },
   });
 
   // Create an audio context and source using the Web Audio API
