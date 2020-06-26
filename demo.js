@@ -1,5 +1,3 @@
-import BreathingSonarJS from './BreathingSonarJS.js';
-
 let sonar;
 
 async function main() {
