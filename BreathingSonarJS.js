@@ -31,11 +31,7 @@ export default class BreathingSonarJS {
     // Note the explicit disabling of several default audio settings that interfere with sonar detection
     let stream = await navigator.mediaDevices.getUserMedia({
       video: false,
-      audio: {
-        'autoGainControl': false,
-        'echoCancellation': false,
-        'noiseSuppression': false,
-      },
+      audio: true,
     });
 
     // Create an audio context and source using the Web Audio API
