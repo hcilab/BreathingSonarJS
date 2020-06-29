@@ -48,7 +48,7 @@ async function setup() {
   await sonar.init();
   sonar.trainingData = trainingData;
   sonar.register('stack', function() {
-    mainWave.addHighlight(mainWave.n - fr*2, recognizeColor);
+    mainWave.addHighlight(mainWave.n - fr*2, recognizeColor, label='stack');
   });
 
   isReady = true;
@@ -66,7 +66,7 @@ function draw() {
   strokeWeight(1);
   fill(0);
 
-  textAlign(CENTER);
+  textAlign(CENTER, CENTER);
   textSize(32);
   text('Breathing Sonar JS (' + nf(frameRate(), 2, 1) + 'fps)' , width/2, 50);
 
@@ -106,7 +106,7 @@ function mouseClicked() {
     return;
   }
 
-  mainWave.addHighlight(mainWave.dataPoints.length, trainColor);
+  mainWave.addHighlight(mainWave.dataPoints.length, trainColor, label='stack');
   trainingWaves.push(new Wave(width/4, 2/32 * height,fr*2));
   trainingWaves[trainingWaves.length-1].addHighlight(0, trainColorFaint);
   while (trainingWaves.length > 10) {
@@ -150,8 +150,8 @@ class Wave {
     }
   }
 
-  addHighlight(n, c) {
-    this.highlights.push(new Highlight(n, c));
+  addHighlight(n, c, label='') {
+    this.highlights.push(new Highlight(n, c, label));
   }
 
   draw(x, y) {
@@ -192,13 +192,20 @@ class Wave {
     let _w = 2*fr*(this.w/this.n);
     let _h = this.h;
     rect(_x, _y, _w, _h);
+
+    fill(0);
+    textAlign(LEFT, TOP);
+    textSize(12);
+    text(highlight.label, _x, _y);
+
   }
 }
 
 
 class Highlight {
-  constructor(n, c) {
+  constructor(n, c, label='') {
     this.n = n;
     this.c = c;
+    this.label = label;
   }
 }
