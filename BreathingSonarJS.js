@@ -20,6 +20,7 @@ class BreathingSonarJS {
     this._trainingData = [];
     this._dollarRecognizer = new DollarRecognizer();
     this._registeredCallbacks = new Map();
+    this._gestureCooldownTimer = Date.now();
   }
 
   async init() {
@@ -87,11 +88,14 @@ class BreathingSonarJS {
 
     // Test for breathing patterns using the $1 Gesture Recognizer library
     //// Boolean param specifies whether to use "Protractor" algorithm - a performance enhancement
-    let windowSnapshot = Array.from(this._rollingWindow.map(reading => reading.filtered));
-    let recognizedPattern = this._dollarRecognizer.Recognize(_timeseriesToPoints(windowSnapshot), true);
-    if (this._registeredCallbacks.has(recognizedPattern.Name)) {
-      let callbacks = this._registeredCallbacks.get(recognizedPattern.Name);
-      callbacks.forEach(callback => callback());
+    if (Date.now() > this._gestureCooldownTimer + this._windowLengthMillis) {
+      let windowSnapshot = Array.from(this._rollingWindow.map(reading => reading.filtered));
+      let recognizedPattern = this._dollarRecognizer.Recognize(_timeseriesToPoints(windowSnapshot), true);
+      if (this._registeredCallbacks.has(recognizedPattern.Name)) {
+        let callbacks = this._registeredCallbacks.get(recognizedPattern.Name);
+        callbacks.forEach(callback => callback());
+        this._gestureCooldownTimer = Date.now();
+      }
     }
   }
 
