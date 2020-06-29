@@ -89,6 +89,10 @@ function windowResized() {
 }
 
 function mouseClicked() {
+  if (trainingCountdown > 0) {
+    return;
+  }
+
   mainWave.addHighlight(mainWave.dataPoints.length, trainColor);
   trainingWaves.push(new Wave(width/4, 2/32 * height,fr*2));
   trainingWaves[trainingWaves.length-1].addHighlight(0, trainColorFaint);
