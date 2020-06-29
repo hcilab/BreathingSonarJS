@@ -17,6 +17,7 @@ class BreathingSonarJS {
 
     this._oneEuroFilter = new OneEuroFilter(this._samplingRateHz);
 
+    this._trainingData = [];
     this._dollarRecognizer = new DollarRecognizer();
     this._registeredCallbacks = new Map();
   }
@@ -110,6 +111,9 @@ class BreathingSonarJS {
 
     // Add training data to the $1 Recognizer
     this._dollarRecognizer.AddGesture(breathingPatternLabel, trainingPoints);
+
+    // Add to the list of training data for import / export capabilities
+    this.trainingData.push({'label': breathingPatternLabel, 'data': windowSnapshot});
   }
 
   register(breathingPatternLabel, callback) {
@@ -124,6 +128,10 @@ class BreathingSonarJS {
       return {'raw': 0, 'filtered': 0};
     }
     return this._rollingWindow[this._rollingWindow.length-1];
+  }
+
+  get trainingData() {
+    return this._trainingData;
   }
 }
 

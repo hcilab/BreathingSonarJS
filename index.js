@@ -98,6 +98,20 @@ function mouseClicked() {
   trainingCountdown = fr*2;
 }
 
+function keyPressed() {
+  if (key == ' ') {
+    exportTrainingData();
+  }
+}
+
+function exportTrainingData() {
+  let writer = createWriter('BreathingPatterns-' + Date.now() + '.csv');
+  let trainingData = Array.from(sonar.trainingData);
+  trainingData.forEach(d => writer.print(d.label + ',' + d.data.join(',')));
+  writer.close();
+  writer.clear();
+}
+
 class Wave {
   constructor(w, h, n) {
     this.w = w;
