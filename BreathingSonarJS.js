@@ -117,6 +117,13 @@ class BreathingSonarJS {
   get trainingData() {
     return this._trainingData;
   }
+
+  set trainingData(trainingData) {
+    // TODO: Handle incorrect data format
+    // TODO: Handle different sampling frequencies
+    this._trainingData = [];
+    trainingData.forEach(d => this.train(d.label, trainingData=d.data));
+  }
 }
 
 
