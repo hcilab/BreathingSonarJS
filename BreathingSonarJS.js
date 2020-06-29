@@ -85,16 +85,10 @@ class BreathingSonarJS {
       this._rollingWindow.shift();
     }
 
-    // Reshape data into format expected by $1 Recognizer
-    let windowSnapshot = Array.from(this._rollingWindow.map(reading => reading.filtered));
-    let points = [];
-    windowSnapshot.forEach(function (value, index) {
-      points.push(new Point(index, value));
-    });
-
     // Test for breathing patterns using the $1 Gesture Recognizer library
     //// Boolean param specifies whether to use "Protractor" algorithm - a performance enhancement
-    let recognizedPattern = this._dollarRecognizer.Recognize(points, true);
+    let windowSnapshot = Array.from(this._rollingWindow.map(reading => reading.filtered));
+    let recognizedPattern = this._dollarRecognizer.Recognize(_timeseriesToPoints(windowSnapshot), true);
     if (this._registeredCallbacks.has(recognizedPattern.Name)) {
       let callbacks = this._registeredCallbacks.get(recognizedPattern.Name);
       callbacks.forEach(callback => callback());
@@ -102,17 +96,8 @@ class BreathingSonarJS {
   }
 
   train(breathingPatternLabel) {
-    // Reshape data into format expected by $1 Recognizer
     let windowSnapshot = Array.from(this._rollingWindow.map(reading => reading.filtered));
-    let trainingPoints = [];
-    windowSnapshot.forEach(function (value, index) {
-      trainingPoints.push(new Point(index, value));
-    });
-
-    // Add training data to the $1 Recognizer
-    this._dollarRecognizer.AddGesture(breathingPatternLabel, trainingPoints);
-
-    // Add to the list of training data for import / export capabilities
+    this._dollarRecognizer.AddGesture(breathingPatternLabel, _timeseriesToPoints(windowSnapshot));
     this.trainingData.push({'label': breathingPatternLabel, 'data': windowSnapshot});
   }
 
@@ -135,6 +120,16 @@ class BreathingSonarJS {
   }
 }
 
+
+// The One Dollar Gesture Recognizer expects all training input as arrays of 2D "Point" values
+// This utility converts a 1D timeseries to the format expected by the Recognizer
+function _timeseriesToPoints(timeseries) {
+  let points = [];
+  timeseries.forEach((value, index) => {
+    points.push(new Point(index, value));
+  });
+  return points;
+}
 
 
 
