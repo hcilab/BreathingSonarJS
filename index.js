@@ -116,7 +116,7 @@ function mouseClicked() {
 }
 
 function keyPressed() {
-  if (key == ' ') {
+  if (keyIsDown(CONTROL) && key == 's') {
     exportTrainingData();
   }
 }
