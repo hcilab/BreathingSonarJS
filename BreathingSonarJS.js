@@ -13,7 +13,6 @@ class BreathingSonarJS {
     this._sonarIndex = -1;
 
     this._rollingWindow = [];
-    this._rollingWindowDerivative = [];
     this._windowCount = Math.ceil(this._windowLengthMillis / this._samplingRateHz);
 
     this._dollarRecognizer = new DollarRecognizer();
@@ -79,16 +78,6 @@ class BreathingSonarJS {
     this._rollingWindow.push(sonarReading);
     while (this._rollingWindow.length > this._windowCount) {
       this._rollingWindow.shift();
-    }
-
-    // Compute derivative of signal as reading[n] - reading[n-1] (defer if this is the first reading ever)
-    if (this._rollingWindow.length > 1) {
-      let previousReading = this._rollingWindow[this._rollingWindow.length-2];
-      let sonarDerivative = sonarReading - previousReading;
-      this._rollingWindowDerivative.push(sonarDerivative);
-      while (this._rollingWindowDerivative.length > this._windowCount) {
-        this._rollingWindowDerivative.shift();
-      }
     }
 
     // Reshape data into format expected by $1 Recognizer
