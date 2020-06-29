@@ -66,10 +66,10 @@ function draw() {
 
   let w = sonar.wave;
 
-  mainWave.push(w);
+  mainWave.push(w.filtered);
 
   if (trainingCountdown > 0) {
-    trainingWaves[trainingWaves.length-1].push(w);
+    trainingWaves[trainingWaves.length-1].push(w.filtered);
     trainingCountdown -= 1;
     if (trainingCountdown == 0) {
       sonar.train('stack');
