@@ -95,10 +95,9 @@ class BreathingSonarJS {
     }
   }
 
-  train(breathingPatternLabel) {
-    let windowSnapshot = Array.from(this._rollingWindow.map(reading => reading.filtered));
-    this._dollarRecognizer.AddGesture(breathingPatternLabel, _timeseriesToPoints(windowSnapshot));
-    this._trainingData.push({'label': breathingPatternLabel, 'data': windowSnapshot});
+  train(breathingPatternLabel, trainingData=this._rollingWindow.map(reading => reading.filtered)) {
+    this._dollarRecognizer.AddGesture(breathingPatternLabel, _timeseriesToPoints(trainingData));
+    this._trainingData.push({'label': breathingPatternLabel, 'data': trainingData});
   }
 
   register(breathingPatternLabel, callback) {
