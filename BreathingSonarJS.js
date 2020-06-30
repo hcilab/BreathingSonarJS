@@ -6,7 +6,7 @@ class BreathingSonarJS {
 
     this._fftSize = 256;
     this._samplingRateHz = 20;
-    this._windowLengthMillis = 2000;
+    this._windowLengthMillis = 500;
 
     this._fftBuffer = null;
     this._fftLabels = null;
