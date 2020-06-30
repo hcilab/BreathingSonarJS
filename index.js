@@ -30,6 +30,8 @@ let mainWave;
 let trainingWaves;
 let trainingCountdown;
 
+let windowLength;
+
 
 async function setup() {
   console.log('Setup...');
@@ -47,8 +49,11 @@ async function setup() {
   sonar = new BreathingSonarJS();
   await sonar.init();
   sonar.trainingData = trainingData;
+
+  windowLength = fr * sonar._windowLengthMillis/1000;
+
   sonar.register('stack', function() {
-    mainWave.addHighlight(mainWave.n - fr*2, recognizeColor, label='stack');
+    mainWave.addHighlight(mainWave.n - windowLength, recognizeColor, label='stack');
   });
 
   isReady = true;
@@ -107,12 +112,12 @@ function mouseClicked() {
   }
 
   mainWave.addHighlight(mainWave.dataPoints.length, trainColor, label='stack');
-  trainingWaves.push(new Wave(width/4, 2/32 * height,fr*2));
+  trainingWaves.push(new Wave(width/4, 2/32 * height, windowLength));
   trainingWaves[trainingWaves.length-1].addHighlight(0, trainColorFaint);
   while (trainingWaves.length > 10) {
     trainingWaves.shift();
   }
-  trainingCountdown = fr*2;
+  trainingCountdown = windowLength;
 }
 
 function keyPressed() {
@@ -189,7 +194,7 @@ class Wave {
     fill(highlight.c);
     let _x = x + highlight.n*(this.w/this.n);
     let _y = y;
-    let _w = 2*fr*(this.w/this.n);
+    let _w = windowLength*(this.w/this.n);
     let _h = this.h;
     rect(_x, _y, _w, _h);
 
