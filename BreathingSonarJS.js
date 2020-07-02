@@ -24,6 +24,8 @@ class BreathingSonarJS {
     this._dollarRecognizer = new DollarRecognizer();
     this._registeredCallbacks = new Map();
     this._gestureCooldownTimer = Date.now();
+
+    this.isForcefulBreathing = false;
   }
 
   async init() {
@@ -115,6 +117,9 @@ class BreathingSonarJS {
         this._gestureCooldownTimer = Date.now();
       }
     }
+
+    // Classify periods of forceful breathing using a threshold on normalized sonar reading.
+    this.isForcefulBreathing = normalizedSonarReading > 0;
   }
 
   train(breathingPatternLabel, trainingData=this._rollingWindow.map(reading => reading.filtered)) {
