@@ -44,7 +44,7 @@ async function setup() {
   recognizeColor = color(0, 255, 0, 50);
 
   mainWave = new Wave(width, 9/30 * height, fr*10);
-  derivativeWave = new Wave(width, 9/30 * height, fr*10);
+  derivativeWave = new Wave(width, 9/30 * height, fr*10, c=color(200));
 
   trainingWaves = [];
   trainingCountdown = 0;
@@ -139,11 +139,12 @@ function exportTrainingData() {
   writer.clear();
 }
 
-class Wave {
-  constructor(w, h, n) {
+class ScrollingLineGraph {
+  constructor(w, h, n, c=color('black')) {
     this.w = w;
     this.h = h;
     this.n = n;
+    this.c = c;
 
     this.dataPoints = [];
     this.highlights = [];
@@ -174,7 +175,7 @@ class Wave {
     strokeWeight(1);
 
     // Draw border
-    fill(250, 220);
+    noFill();
     rect(x, y, this.w, this.h);
 
     // Scale y-axis limits
@@ -182,7 +183,7 @@ class Wave {
     let _max = max(this.dataPoints);
 
     // Draw waveform w/ scaled y-axis
-    noFill();
+    stroke(this.c);
     let _px = x;
     let _py = y + this.h/2;
     this.dataPoints.forEach((d, i) => {
