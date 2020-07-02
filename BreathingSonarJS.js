@@ -98,6 +98,9 @@ class BreathingSonarJS {
     let range = _max - _min;
     let offset = (_max+_min) / 2;
     let normalizedSonarReading = (filteredSonarReading-offset) / range;
+    if (!isFinite(normalizedSonarReading)) {
+      normalizedSonarReading = 0;
+    }
 
     // Push current sonar reading into rolling window
     // TODO: Extract or find a reusable bounded-list data structure
