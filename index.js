@@ -85,6 +85,9 @@ function draw() {
   strokeWeight(0.5)
   text(infoMessage, width/2, 100);
 
+  textAlign(LEFT, CENTER);
+  text(JSON.stringify(sonar.settings, null, space=' '), 7/8 * width, 50, 1/8 * width);
+
   let w = sonar.wave;
 
   derivativeGraph.push(w.derivative);
