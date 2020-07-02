@@ -101,6 +101,8 @@ class BreathingSonarJS {
     if (!isFinite(normalizedSonarReading)) {
       normalizedSonarReading = 0;
     }
+    normalizedSonarReading = Math.max(normalizedSonarReading, -1.0);
+    normalizedSonarReading = Math.min(normalizedSonarReading, 1.0);
 
     // Push current sonar reading into rolling window
     // TODO: Extract or find a reusable bounded-list data structure
