@@ -27,9 +27,9 @@ let trainColorFaint;
 let recognizeColor;
 
 
-let mainWave;
-let derivativeWave;
-let trainingWaves;
+let mainGraph;
+let derivativeGraph;
+let trainingGraphs;
 let trainingCountdown;
 
 let windowLength;
@@ -43,10 +43,10 @@ async function setup() {
   trainColorFaint = color(255, 255, 0, 15);
   recognizeColor = color(0, 255, 0, 50);
 
-  mainWave = new Wave(width, 9/30 * height, fr*10);
-  derivativeWave = new Wave(width, 9/30 * height, fr*10, c=color(200));
+  mainGraph = new ScrollingLineGraph(width, 9/30 * height, fr*10);
+  derivativeGraph = new ScrollingLineGraph(width, 9/30 * height, fr*10, c=color(200));
 
-  trainingWaves = [];
+  trainingGraphs = [];
   trainingCountdown = 0;
 
   sonar = new BreathingSonarJS();
@@ -56,7 +56,7 @@ async function setup() {
   windowLength = fr * sonar._windowLengthMillis/1000;
 
   sonar.register('stack', function() {
-    mainWave.addHighlight(mainWave.n - windowLength, recognizeColor, label='stack');
+    mainGraph.addHighlight(mainGraph.n - windowLength, recognizeColor, label='stack');
   });
 
   isReady = true;
@@ -87,23 +87,23 @@ function draw() {
 
   let w = sonar.wave;
 
-  derivativeWave.push(w.derivative);
-  mainWave.push(w.filtered);
+  derivativeGraph.push(w.derivative);
+  mainGraph.push(w.filtered);
 
   if (trainingCountdown > 0) {
-    trainingWaves[trainingWaves.length-1].push(w.filtered);
+    trainingGraphs[trainingGraphs.length-1].push(w.filtered);
     trainingCountdown -= 1;
     if (trainingCountdown == 0) {
       sonar.train('stack');
     }
   }
 
-  derivativeWave.draw(0, 2/3 * height);
-  mainWave.draw(0, 2/3 * height);
-  trainingWaves.forEach((wave, index) => {
+  derivativeGraph.draw(0, 2/3 * height);
+  mainGraph.draw(0, 2/3 * height);
+  trainingGraphs.forEach((graph, index) => {
     let _x = 50;
     let _y = index * 2/30 * height;
-    wave.draw(_x, _y);
+    graph.draw(_x, _y);
   });
 }
 
@@ -116,11 +116,11 @@ function mouseClicked() {
     return;
   }
 
-  mainWave.addHighlight(mainWave.dataPoints.length, trainColor, label='stack');
-  trainingWaves.push(new Wave(width/4, 2/32 * height, windowLength));
-  trainingWaves[trainingWaves.length-1].addHighlight(0, trainColorFaint);
-  while (trainingWaves.length > 10) {
-    trainingWaves.shift();
+  mainGraph.addHighlight(mainGraph.dataPoints.length, trainColor, label='stack');
+  trainingGraphs.push(new ScrollingLineGraph(width/4, 2/32 * height, windowLength));
+  trainingGraphs[trainingGraphs.length-1].addHighlight(0, trainColorFaint);
+  while (trainingGraphs.length > 10) {
+    trainingGraphs.shift();
   }
   trainingCountdown = windowLength;
 }
@@ -166,24 +166,28 @@ class ScrollingLineGraph {
   }
 
   draw(x, y) {
-    this._drawWave(x, y);
+    this._drawBorder(x, y);
+    this._drawLine(x, y);
     this.highlights.forEach(highlight => this._drawHighlight(x, y, highlight));
   }
 
-  _drawWave(x, y) {
+  _drawBorder(x, y) {
     stroke(0);
     strokeWeight(1);
 
     // Draw border
     noFill();
     rect(x, y, this.w, this.h);
+  }
+
+  _drawLine(x, y) {
+    stroke(this.c);
 
     // Scale y-axis limits
     let _min = min(this.dataPoints);
     let _max = max(this.dataPoints);
 
     // Draw waveform w/ scaled y-axis
-    stroke(this.c);
     let _px = x;
     let _py = y + this.h/2;
     this.dataPoints.forEach((d, i) => {
@@ -198,6 +202,7 @@ class ScrollingLineGraph {
   _drawHighlight(x, y, highlight) {
     noStroke();
     fill(highlight.c);
+
     let _x = x + highlight.n*(this.w/this.n);
     let _y = y;
     let _w = windowLength*(this.w/this.n);
@@ -205,10 +210,10 @@ class ScrollingLineGraph {
     rect(_x, _y, _w, _h);
 
     fill(0);
+
     textAlign(LEFT, TOP);
     textSize(12);
     text(highlight.label, _x, _y);
-
   }
 }
 
