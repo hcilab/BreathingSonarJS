@@ -85,28 +85,19 @@ class ScrollingLineGraph {
     this.c = c;
 
     this.dataPoints = [];
-    this.highlights = [];
   }
 
   push(dataPoint) {
     this.dataPoints.push(dataPoint);
     while(this.dataPoints.length > this.n) {
       this.dataPoints.shift();
-      this.highlights.forEach((highlight, index) => {
-        highlight.n -= 1;
-        // TODO: remove from list if < 0
-      });
     }
-  }
-
-  addHighlight(n, c, label='') {
-    this.highlights.push(new Highlight(n, c, label));
   }
 
   draw(x, y) {
     this._drawBorder(x, y);
     this._drawLine(x, y);
-    this.highlights.forEach(highlight => this._drawHighlight(x, y, highlight));
+    this._drawHighlights(x, y);
   }
 
   _drawBorder(x, y) {
@@ -139,29 +130,22 @@ class ScrollingLineGraph {
     });
   }
 
-  _drawHighlight(x, y, highlight) {
+  _drawHighlights(x, y) {
     noStroke();
-    fill(highlight.c);
+    fill(recognizeColor);
 
-    let _x = x + highlight.n*(this.w/this.n);
-    let _y = y;
-    let _w = windowLength*(this.w/this.n);
-    let _h = this.h;
-    rect(_x, _y, _w, _h);
-
-    fill(0);
-
-    textAlign(LEFT, TOP);
-    textSize(12);
-    text(highlight.label, _x, _y);
-  }
-}
-
-
-class Highlight {
-  constructor(n, c, label='') {
-    this.n = n;
-    this.c = c;
-    this.label = label;
+    let i = 0;
+    while (i < this.dataPoints.length) {
+      if (this.dataPoints[i] > 0) {
+        let start = i;
+        while (i < this.dataPoints.length && this.dataPoints[i] > 0){
+          i++;
+        }
+        let _x = x + (start*(this.w/this.n));
+        let _width = (i-start) * (this.w/this.n);
+        rect(_x, y, _width, this.h);
+      }
+      i++;
+    }
   }
 }
