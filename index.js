@@ -53,12 +53,12 @@ async function setup() {
   await sonar.init();
   sonar.trainingData = trainingData;
 
-  windowLength = fr * sonar._windowLengthMillis/1000;
 
   sonar.register('stack', function() {
     mainGraph.addHighlight(mainGraph.n - windowLength, recognizeColor, label='stack');
   });
 
+  windowLength = fr * sonar.settings.windowLengthMillis/1000;
   isReady = true;
 }
 

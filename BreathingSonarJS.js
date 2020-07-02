@@ -5,6 +5,7 @@ class BreathingSonarJS {
     this._audioAnalyser = null;
 
     this.settings = {
+      'sonarFrequency': 20000,
       'fftSize': 256,
       'samplingRateHz': 20,
       'windowLengthMillis': 500,
@@ -47,7 +48,7 @@ class BreathingSonarJS {
     //// JSON params object into the generic constructor, instead of using this factory method...
     let oscillator = audioContext.createOscillator();
     oscillator.type = "sine";
-    oscillator.frequency.setValueAtTime(20000, audioContext.currentTime);
+    oscillator.frequency.setValueAtTime(this.settings.sonarFrequency, audioContext.currentTime);
     oscillator.connect(audioContext.destination);
     oscillator.start();
 
@@ -65,7 +66,7 @@ class BreathingSonarJS {
     // Identify FFT frequency bin corresponding to the sonar signal
     this._fftLabels = Array.from(new Array(binCount), (x, i) => i/binCount * audioContext.sampleRate/2);
     this._sonarIndex = 0;
-    while (this._fftLabels[this._sonarIndex] < 20000) {
+    while (this._fftLabels[this._sonarIndex] < this.settings.sonarFrequency) {
       this._sonarIndex++;
     }
 
