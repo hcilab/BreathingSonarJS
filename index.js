@@ -134,8 +134,10 @@ class ScrollingLineGraph {
     let _py = y + this.h/2;
     this.dataPoints.forEach((d, i) => {
       let _x = x + i*(this.w/this.n);
-      let _y = y + this.h/2 + map(d, _min, _max, -this.h/2, this.h/2);
+      let _y = y + this.h/2 - map(d, _min, _max, -this.h/2, this.h/2);
+      let _zero = y + this.h/2 - map(0, _min, _max, -this.h/2, this.h/2);
       line(_px, _py, _x, _y);
+      point(_x, _zero);
       _px = _x;
       _py = _y;
     });
