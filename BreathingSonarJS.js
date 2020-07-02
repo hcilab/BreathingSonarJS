@@ -76,17 +76,27 @@ class BreathingSonarJS {
     // Compute FFT
     this._audioAnalyser.getByteFrequencyData(this._fftBuffer);
 
-    // Push current sonar reading into rolling window
-    // TODO: Extract or find a reusable bounded-list data structure
     let sonarReading = this._fftBuffer[this._sonarIndex];
     let filteredSonarReading = this._oneEuroFilter.filter(sonarReading);
+
+    // Compute derivative of signal (i.e., r[n] - r[n-1])
     let derivativeSonarReading = 0;
     if (this._rollingWindow.length > 0) {
       let previousReading = this._rollingWindow[this._rollingWindow.length-1];
       derivativeSonarReading = filteredSonarReading - previousReading.filtered;
     }
 
-    this._rollingWindow.push({'raw': sonarReading, 'filtered': filteredSonarReading, 'derivative': derivativeSonarReading});
+    // Compute normalized reading (i.e., within range [-1.0, 1.0] based on min and max values in rollingWindow)
+    let filteredReadings = this._rollingWindow.map(r => r.filtered);
+    let _min = Math.min(...filteredReadings);
+    let _max = Math.max(...filteredReadings);
+    let range = _max - _min;
+    let offset = (_max+_min) / 2;
+    let normalizedSonarReading = (filteredSonarReading-offset) / range;
+
+    // Push current sonar reading into rolling window
+    // TODO: Extract or find a reusable bounded-list data structure
+    this._rollingWindow.push({'raw': sonarReading, 'filtered': filteredSonarReading, 'derivative': derivativeSonarReading, 'normalized': normalizedSonarReading});
     while (this._rollingWindow.length > this._windowCount) {
       this._rollingWindow.shift();
     }
@@ -118,7 +128,7 @@ class BreathingSonarJS {
 
   get wave() {
     if (this._rollingWindow.length == 0) {
-      return {'raw': 0, 'filtered': 0, 'derivative': 0};
+      return {'raw': 0, 'filtered': 0, 'derivative': 0, 'normalized': 0};
     }
     return this._rollingWindow[this._rollingWindow.length-1];
   }
