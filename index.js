@@ -28,6 +28,7 @@ let recognizeColor;
 
 
 let mainWave;
+let derivativeWave;
 let trainingWaves;
 let trainingCountdown;
 
@@ -43,6 +44,7 @@ async function setup() {
   recognizeColor = color(0, 255, 0, 50);
 
   mainWave = new Wave(width, 9/30 * height, fr*10);
+  derivativeWave = new Wave(width, 9/30 * height, fr*10);
 
   trainingWaves = [];
   trainingCountdown = 0;
@@ -85,6 +87,7 @@ function draw() {
 
   let w = sonar.wave;
 
+  derivativeWave.push(w.derivative);
   mainWave.push(w.filtered);
 
   if (trainingCountdown > 0) {
@@ -95,6 +98,7 @@ function draw() {
     }
   }
 
+  derivativeWave.draw(0, 2/3 * height);
   mainWave.draw(0, 2/3 * height);
   trainingWaves.forEach((wave, index) => {
     let _x = 50;
@@ -170,7 +174,7 @@ class Wave {
     strokeWeight(1);
 
     // Draw border
-    fill(250);
+    fill(250, 220);
     rect(x, y, this.w, this.h);
 
     // Scale y-axis limits

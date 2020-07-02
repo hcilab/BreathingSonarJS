@@ -80,8 +80,13 @@ class BreathingSonarJS {
     // TODO: Extract or find a reusable bounded-list data structure
     let sonarReading = this._fftBuffer[this._sonarIndex];
     let filteredSonarReading = this._oneEuroFilter.filter(sonarReading);
+    let derivativeSonarReading = 0;
+    if (this._rollingWindow.length > 0) {
+      let previousReading = this._rollingWindow[this._rollingWindow.length-1];
+      derivativeSonarReading = filteredSonarReading - previousReading.filtered;
+    }
 
-    this._rollingWindow.push({'raw': sonarReading, 'filtered': filteredSonarReading});
+    this._rollingWindow.push({'raw': sonarReading, 'filtered': filteredSonarReading, 'derivative': derivativeSonarReading});
     while (this._rollingWindow.length > this._windowCount) {
       this._rollingWindow.shift();
     }
@@ -113,7 +118,7 @@ class BreathingSonarJS {
 
   get wave() {
     if (this._rollingWindow.length == 0) {
-      return {'raw': 0, 'filtered': 0};
+      return {'raw': 0, 'filtered': 0, 'derivative': 0};
     }
     return this._rollingWindow[this._rollingWindow.length-1];
   }
