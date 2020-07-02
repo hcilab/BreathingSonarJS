@@ -14,6 +14,9 @@ let recognizeColor;
 let mainGraph;
 let windowLength;
 
+let player;
+let wasForcefulBreathing = false;
+
 
 async function setup() {
   console.log('Setup...');
@@ -27,6 +30,8 @@ async function setup() {
   await sonar.init();
   windowLength = fr * sonar.settings.windowLengthMillis/1000;
   isReady = true;
+
+  player = new Player(width/2, height/2);
 }
 
 function draw() {
@@ -70,6 +75,17 @@ function draw() {
     textSize(40);
     text('Initializing Rolling Window...', width/2, height/2);
   }
+
+  if (!wasForcefulBreathing && sonar.isForcefulBreathing) {
+    player.jump();
+  }
+  wasForcefulBreathing = sonar.isForcefulBreathing;
+
+  player.update();
+  if (player.pos.y > height || player.pos.y < 0 - height/2) {
+    player.reset();
+  }
+  player.draw();
 }
 
 function windowResized() {
@@ -143,5 +159,54 @@ class ScrollingLineGraph {
       }
       i++;
     }
+  }
+}
+
+class Player {
+  constructor(x, y) {
+    this.orig = createVector(x, y);
+    this.radius = 50;
+    this.reset();
+  }
+
+  reset() {
+    this.pos = createVector(this.orig.x, this.orig.y);
+    this.vel = createVector(0, 0);
+    this.acc = createVector(0, 0.25);
+    this.respond = false;
+  }
+
+  update(elapsedTimeMillis) {
+    if (this.respond) {
+      this.pos.add(this.vel);
+
+      if (this.isJumping) {
+        this.vel.add(p5.Vector.mult(this.acc, 0.25));
+      } else {
+        this.vel.add(this.acc);
+      }
+    }
+  }
+
+  draw() {
+    ellipseMode(CENTER);
+
+    stroke(0);
+    if (this.isJumping) {
+      fill(200, 200);
+    } else {
+      fill(0, 200);
+    }
+
+    ellipse(this.pos.x, this.pos.y, this.radius);
+  }
+
+  jump() {
+    this.respond = true;
+    this.vel.add(createVector(0, -10));
+  }
+
+  get isJumping() {
+    return sonar.isForcefulBreathing;
   }
 }
