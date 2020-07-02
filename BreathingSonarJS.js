@@ -4,18 +4,20 @@ class BreathingSonarJS {
     // Used to perform FFT calculations
     this._audioAnalyser = null;
 
-    this._fftSize = 256;
-    this._samplingRateHz = 20;
-    this._windowLengthMillis = 500;
+    this.settings = {
+      'fftSize': 256,
+      'samplingRateHz': 20,
+      'windowLengthMillis': 500,
+    }
 
     this._fftBuffer = null;
     this._fftLabels = null;
     this._sonarIndex = -1;
 
     this._rollingWindow = [];
-    this._windowCount = Math.ceil(this._windowLengthMillis / this._samplingRateHz);
+    this._windowCount = Math.ceil(this.settings.windowLengthMillis / this.settings.samplingRateHz);
 
-    this._oneEuroFilter = new OneEuroFilter(this._samplingRateHz);
+    this._oneEuroFilter = new OneEuroFilter(this.settings.samplingRateHz);
 
     this._trainingData = [];
     this._dollarRecognizer = new DollarRecognizer();
@@ -53,7 +55,7 @@ class BreathingSonarJS {
     // Requires an array to store readings in, as well as bin labels for column headers
     this._audioAnalyser = audioContext.createAnalyser();
     audioSource.connect(this._audioAnalyser);
-    this._audioAnalyser.fftSize = this._fftSize;
+    this._audioAnalyser.fftSize = this.settings.fftSize;
 
     // Initialize array used to store FFT calculations
     // TODO: can I eliminate binCount and just use this._fftSize? (i.e., are they the same in all situations?)
@@ -69,7 +71,7 @@ class BreathingSonarJS {
 
     // ".bind(this)" preserves the namespace of the current object...
     // In otherwords, tells JS to call the *method* bound to the current object, and not an unbound *function*
-    setInterval(this.process.bind(this), 1000/this._samplingRateHz);
+    setInterval(this.process.bind(this), 1000/this.settings.samplingRateHz);
   }
 
   process() {
@@ -103,7 +105,7 @@ class BreathingSonarJS {
 
     // Test for breathing patterns using the $1 Gesture Recognizer library
     //// Boolean param specifies whether to use "Protractor" algorithm - a performance enhancement
-    if (Date.now() > this._gestureCooldownTimer + this._windowLengthMillis) {
+    if (Date.now() > this._gestureCooldownTimer + this.settings.windowLengthMillis) {
       let windowSnapshot = Array.from(this._rollingWindow.map(reading => reading.filtered));
       let recognizedPattern = this._dollarRecognizer.Recognize(_timeseriesToPoints(windowSnapshot), true);
       if (this._registeredCallbacks.has(recognizedPattern.Name)) {
