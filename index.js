@@ -10,7 +10,6 @@ let isReady = false;
 
 let recognizeColor;
 
-
 let mainGraph;
 let windowLength;
 
@@ -61,7 +60,6 @@ function draw() {
   text(JSON.stringify(w, null, space=' '), 7/8 * width, 150, 1/8 * width);
 
   mainGraph.push(w.normalized);
-
   mainGraph.draw(0, 2/3 * height);
 
   if (millis() < sonar.settings.windowLengthMillis) {
