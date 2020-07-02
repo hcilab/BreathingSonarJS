@@ -12,7 +12,6 @@ let recognizeColor;
 
 
 let mainGraph;
-let derivativeGraph;
 let windowLength;
 
 
@@ -23,7 +22,6 @@ async function setup() {
   recognizeColor = color(0, 255, 0, 50);
 
   mainGraph = new ScrollingLineGraph(width, 9/30 * height, fr*15);
-  derivativeGraph = new ScrollingLineGraph(width, 9/30 * height, fr*15, c=color(200));
 
   sonar = new BreathingSonarJS();
   await sonar.init();
@@ -57,10 +55,8 @@ function draw() {
   let w = sonar.wave;
   text(JSON.stringify(w, null, space=' '), 7/8 * width, 150, 1/8 * width);
 
-  derivativeGraph.push(w.derivative);
   mainGraph.push(w.normalized);
 
-  derivativeGraph.draw(0, 2/3 * height);
   mainGraph.draw(0, 2/3 * height);
 
   if (millis() < sonar.settings.windowLengthMillis) {
