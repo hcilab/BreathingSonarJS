@@ -112,17 +112,13 @@ class ScrollingLineGraph {
   _drawLine(x, y) {
     stroke(this.c);
 
-    // Scale y-axis limits
-    let _min = min(this.dataPoints);
-    let _max = max(this.dataPoints);
-
-    // Draw waveform w/ scaled y-axis
+    // Draw waveform [-1.0, 1.0]
     let _px = x;
     let _py = y + this.h/2;
     this.dataPoints.forEach((d, i) => {
       let _x = x + i*(this.w/this.n);
-      let _y = y + this.h/2 - map(d, _min, _max, -this.h/2, this.h/2);
-      let _zero = y + this.h/2 - map(0, _min, _max, -this.h/2, this.h/2);
+      let _y = y + this.h/2 - map(d, -1, 1, -this.h/2, this.h/2);
+      let _zero = y + this.h/2 - map(0, -1, 1, -this.h/2, this.h/2);
       line(_px, _py, _x, _y);
       point(_x, _zero);
       _px = _x;
