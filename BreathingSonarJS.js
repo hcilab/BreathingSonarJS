@@ -81,7 +81,17 @@ class BreathingSonarJS {
     // Compute FFT
     this._audioAnalyser.getByteFrequencyData(this._fftBuffer);
 
+    // Read raw sonar power from FFT
     let sonarReading = this._fftBuffer[this._sonarIndex];
+
+    //// Note that this can report garbage values during early initialization
+    //// If this occurs, explicitly assign the mid-point reading (i.e., 255 / 2)
+    if (!isFinite(sonarReading)) {
+      sonarReading = 128;
+    }
+
+    // Filter raw sonar reading using the One Euro Filter
+    //// TODO: I am currently using all default filter params - better performance may be possible
     let filteredSonarReading = this._oneEuroFilter.filter(sonarReading);
 
     // Compute derivative of signal (i.e., r[n] - r[n-1])
@@ -98,11 +108,13 @@ class BreathingSonarJS {
     let range = _max - _min;
     let offset = (_max+_min) / 2;
     let normalizedSonarReading = (filteredSonarReading-offset) / range;
+
+    //// Since there is a possibility for divisions including 0, clip and clean as needed
+    normalizedSonarReading = Math.max(normalizedSonarReading, -1.0);
+    normalizedSonarReading = Math.min(normalizedSonarReading, 1.0);
     if (!isFinite(normalizedSonarReading)) {
       normalizedSonarReading = 0;
     }
-    normalizedSonarReading = Math.max(normalizedSonarReading, -1.0);
-    normalizedSonarReading = Math.min(normalizedSonarReading, 1.0);
 
     // Push current sonar reading into rolling window
     // TODO: Extract or find a reusable bounded-list data structure
