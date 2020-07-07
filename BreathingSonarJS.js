@@ -115,7 +115,14 @@ class BreathingSonarJS {
 
     // Push current sonar reading into rolling window
     // TODO: Extract or find a reusable bounded-list data structure
-    this._rollingWindow.push({'raw': sonarReading, 'filtered': filteredSonarReading, 'derivative': derivativeSonarReading, 'normalized': normalizedSonarReading, 'square': squareSonarReading});
+    this._rollingWindow.push({
+      'raw': sonarReading,
+      'filtered': filteredSonarReading,
+      'derivative': derivativeSonarReading,
+      'normalized': normalizedSonarReading,
+      'square': squareSonarReading,
+    });
+
     while (this._rollingWindow.length > this._windowCount) {
       this._rollingWindow.shift();
     }
