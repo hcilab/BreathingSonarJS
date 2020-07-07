@@ -8,8 +8,6 @@ let fr = 30;
 let sonar;
 let isReady = false;
 
-let recognizeColor;
-
 let mainGraph;
 let windowLength;
 
@@ -21,7 +19,6 @@ async function setup() {
   console.log('Setup...');
   createCanvas(windowWidth, windowHeight);
   frameRate(fr);
-  recognizeColor = color(0, 255, 0, 50);
 
   mainGraph = new ScrollingLineGraph(width, 9/30 * height, fr*15);
 
@@ -92,11 +89,12 @@ function windowResized() {
 
 
 class ScrollingLineGraph {
-  constructor(w, h, n, c=color('black')) {
+  constructor(w, h, n, c=color('black'), highlightColor=color(0, 255, 0, 50)) {
     this.w = w;
     this.h = h;
     this.n = n;
     this.c = c;
+    this.highlightColor = highlightColor;
 
     this.dataPoints = [];
   }
@@ -142,7 +140,7 @@ class ScrollingLineGraph {
 
   _drawHighlights(x, y) {
     noStroke();
-    fill(recognizeColor);
+    fill(this.highlightColor);
 
     let i = 0;
     while (i < this.dataPoints.length) {
