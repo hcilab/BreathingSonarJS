@@ -8,7 +8,7 @@ class BreathingSonarJS {
       'sonarFrequency': 20000,
       'fftSize': 256,
       'samplingRateHz': 20,
-      'windowLengthMillis': 15000,
+      'windowLengthMillis': 10000,
       'forcefulBreathingThreshold': 0.2,
     }
 
