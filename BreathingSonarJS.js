@@ -122,7 +122,7 @@ class BreathingSonarJS {
 
   }
 
-  get wave() {
+  get reading() {
     if (this._rollingWindow.length == 0) {
       return {'raw': 0, 'filtered': 0, 'derivative': 0, 'normalized': 0, 'square': 0};
     }
@@ -130,7 +130,7 @@ class BreathingSonarJS {
   }
 
   get isForcefulBreathing() {
-    return this.wave.square > 0;
+    return this.reading.square > 0;
   }
 }
 

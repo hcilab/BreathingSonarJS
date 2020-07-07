@@ -53,10 +53,10 @@ function draw() {
   textAlign(LEFT, CENTER);
   text(JSON.stringify(sonar.settings, null, space=' '), 7/8 * width, 50, 1/8 * width);
 
-  let w = sonar.wave;
-  text(JSON.stringify(w, null, space=' '), 7/8 * width, 150, 1/8 * width);
+  let r = sonar.reading;
+  text(JSON.stringify(r, null, space=' '), 7/8 * width, 150, 1/8 * width);
 
-  mainGraph.push(w.normalized);
+  mainGraph.push(r.normalized);
   mainGraph.draw(0, 2/3 * height);
 
   if (millis() < sonar.settings.windowLengthMillis) {
