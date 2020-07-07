@@ -9,6 +9,7 @@ class BreathingSonarJS {
       'fftSize': 256,
       'samplingRateHz': 20,
       'windowLengthMillis': 15000,
+      'forcefulBreathingThreshold': 0.2,
     }
 
     this._fftBuffer = null;
@@ -19,8 +20,6 @@ class BreathingSonarJS {
     this._windowCount = Math.ceil(this.settings.windowLengthMillis / this.settings.samplingRateHz);
 
     this._oneEuroFilter = new OneEuroFilter(this.settings.samplingRateHz);
-
-    this.isForcefulBreathing = false;
   }
 
   async init() {
@@ -111,22 +110,27 @@ class BreathingSonarJS {
       normalizedSonarReading = 0;
     }
 
+    // Convert to a square wave of "forceful breathing" by thresholding normalized reading
+    let squareSonarReading = normalizedSonarReading > this.settings.forcefulBreathingThreshold ? 1 : 0;
+
     // Push current sonar reading into rolling window
     // TODO: Extract or find a reusable bounded-list data structure
-    this._rollingWindow.push({'raw': sonarReading, 'filtered': filteredSonarReading, 'derivative': derivativeSonarReading, 'normalized': normalizedSonarReading});
+    this._rollingWindow.push({'raw': sonarReading, 'filtered': filteredSonarReading, 'derivative': derivativeSonarReading, 'normalized': normalizedSonarReading, 'square': squareSonarReading});
     while (this._rollingWindow.length > this._windowCount) {
       this._rollingWindow.shift();
     }
 
-    // Classify periods of forceful breathing using a threshold on normalized sonar reading.
-    this.isForcefulBreathing = normalizedSonarReading > 0;
   }
 
   get wave() {
     if (this._rollingWindow.length == 0) {
-      return {'raw': 0, 'filtered': 0, 'derivative': 0, 'normalized': 0};
+      return {'raw': 0, 'filtered': 0, 'derivative': 0, 'normalized': 0, 'square': 0};
     }
     return this._rollingWindow[this._rollingWindow.length-1];
+  }
+
+  get isForcefulBreathing() {
+    return this.wave.square > 0;
   }
 }
 
