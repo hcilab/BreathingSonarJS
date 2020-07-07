@@ -17,7 +17,7 @@ class BreathingSonarJS {
     this._sonarIndex = -1;
 
     this._rollingWindow = [];
-    this._windowCount = Math.ceil(this.settings.windowLengthMillis / this.settings.samplingRateHz);
+    this._windowCount = Math.ceil((this.settings.windowLengthMillis / 1000) * this.settings.samplingRateHz);
 
     this._oneEuroFilter = new OneEuroFilter(this.settings.samplingRateHz);
   }
